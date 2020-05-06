@@ -38,9 +38,9 @@ def newGame
 		answer.push(newNum)
 	end
 	puts "The game starts. Guess the number!"
-	print "[DEBUG] "
-	answer.each {|num| print num}
-	puts ""
+	#print "[DEBUG] "
+	#answer.each {|num| print num}
+	#puts ""
 	return answer
 end
 
@@ -66,6 +66,7 @@ def checkInput(input)
 end
 
 def youWin
+	$isGaming = false
 	endTime = Time.now
 	gameTime = Time.at(endTime - $startTime).utc.strftime("%H:%M:%S")
 	puts "Yes! You got it. What's your name?"
@@ -93,7 +94,7 @@ while 1 do
 	if input.downcase == "quit"
 		break
 	elsif input.downcase == "new"
-		newGame()
+		$answer = newGame()
 	elsif !$isGaming
 		puts "If you want to start a new game, type \"new\"."
 	else
