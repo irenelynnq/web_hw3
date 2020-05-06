@@ -26,9 +26,9 @@ class Drink
 
 	def sell(count)
 		#this method does not check stock. vending machine should check it.
-		@price -= count
+		@stock -= count
 		file = File.new("sales_log.txt", "a")
-		file.puts @name.ljust(15) + count.to_s.ljust(5) + Time.now.strftime("%Y/%m/%d %H:%M:%S")
+		file.puts @name.ljust(15) + count.to_s.ljust(10) + Time.now.strftime("%Y/%m/%d %H:%M:%S")
 		file.close
 	end
 end
@@ -40,6 +40,7 @@ def fillStock
 	$vending_machine.each do |drink|
 		drink.fill
 	end
+	settle()
 end
 
 def settle
@@ -49,19 +50,35 @@ def settle
 	$vending_machine.each do |drink|
 		sum += drink.getPrice * $max_stock
 	end
-	money += sum
-	file.puts "Earned " + sum.to_s + "won. In total, " money.to_s + "won."
+	$money += sum
+	file.puts "Earned " + sum.to_s + "won. In total, " + $money.to_s + "won."
 	file.close
 end
 
 def printStock
+	isSoldOut = true
 	for i in 0...4
-		unless $vending_machine[i].getStock <= 0
+		unless $vending_machine[i].getStock < 1
 			puts (i+1).to_s + ": " + $vending_machine[i].getName
+			isSoldOut = false
 		end
+	end
+	if isSoldOut
+		puts "Filling the Stock..."
+		fillStock()
+		printStock()
 	end
 end
 
+def sellDrink(num)
+	drinkWanted = $vending_machine[num-1]
+	if drinkWanted.getStock < 1
+		puts "Sorry. #{drinkWanted.getName} is sold out."
+	else
+		drinkWanted.sell(1)
+		puts "Here is your #{drinkWanted.getName}!"
+	end
+end
 
 
 #start vending machine!
@@ -76,33 +93,33 @@ $vending_machine.push(Drink.new("Coffee", 700))
 $vending_machine.push(Drink.new("Black Tea", 900))
 
 
-fillStock
-
 puts "Hello. This is a vending machine. let's start today's sales."
 puts "If you want to shut down the machine, type \"close\"."
 
 while 1 do
-	puts "Hello. What do you want? Pick a number."
+	puts "What do you want? Pick a number."
 	printStock
 	print"Pick: "
 	input = gets.chomp
 	
 	if input.downcase == "close"
 		break
-	elsif
+	elsif (input.length > 1) || (input.to_i < 1) || (input.to_i > 4)
+		puts "Sorry, it is not available. Please pick a number between 1 and 4."
 	else
+		sellDrink(input.to_i)
 	end
 end
 
 
 $vending_machine.each do |drink|
-	money += drink.getPrice * ($max_stock - drink.getStock)
+	$money += (drink.getPrice) * ($max_stock - drink.getStock)
 end
 
 
-file = File.new("sales_log.txt", "w")
+file = File.new("sales_log.txt", "a")
 file.puts "The vending machine is closed at " + Time.now.strftime("%Y/%m/%d %H:%M:%S") + "."
-file.puts "In total, " + money.to_s + "won was earned."
+file.puts "In total, " + $money.to_s + "won was earned."
 
 puts "Okay. Let's call it a day! I made a sales log for you. You can check it in the folder. Bye!"
 
