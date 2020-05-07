@@ -28,7 +28,7 @@ class Drink
 		#this method does not check stock. vending machine should check it.
 		@stock -= count
 		file = File.new("sales_log.txt", "a")
-		file.puts @name.ljust(15) + count.to_s.ljust(10) + Time.now.strftime("%Y/%m/%d %H:%M:%S")
+		file.puts @name.ljust(15) + count.to_s.ljust(10) + @price.to_s.ljust(10) + Time.now.strftime("%Y/%m/%d %H:%M:%S")
 		file.close
 	end
 end
@@ -84,7 +84,7 @@ end
 #start vending machine!
 file = File.new("sales_log.txt", "w")
 file.puts "This is a sales log of a vending machine."
-file.puts "name".ljust(15) + "count".ljust(5) + "time"
+file.puts "name".ljust(15) + "count".ljust(10) + "price".ljust(10) + "time"
 file.close
 
 $vending_machine.push(Drink.new("Coke", 1000))
